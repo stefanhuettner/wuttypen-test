@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcher Wutanfall-Typ ist dein Kind?</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: -apple-system, 'Segoe UI', sans-serif;
+  background: #faf6f2;
+  color: #2d2a26;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 40px 0 20px;
+}
+
+.header h1 {
+  font-size: 1.6em;
+  color: #d4698a;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.header .subtitle {
+  font-size: 0.95em;
+  color: #8a7e76;
+  line-height: 1.5;
+}
+
+/* Intro */
+.intro {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  margin: 20px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.intro h2 {
+  font-size: 1.15em;
+  margin-bottom: 16px;
+  color: #d4698a;
+}
+
+.type-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.type-card {
+  background: #faf6f2;
+  border-radius: 12px;
+  padding: 14px;
+  text-align: center;
+}
+
+.type-card .emoji {
+  font-size: 1.8em;
+  margin-bottom: 6px;
+}
+
+.type-card .name {
+  font-weight: 700;
+  font-size: 0.9em;
+  color: #2d2a26;
+}
+
+.type-card .desc {
+  font-size: 0.78em;
+  color: #8a7e76;
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+.intro .note {
+  font-size: 0.85em;
+  color: #8a7e76;
+  font-style: italic;
+  margin-top: 14px;
+  line-height: 1.5;
+}
+
+/* Start Button */
+.btn-start {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: #d4698a;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1em;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: transform 0.15s, background 0.2s;
+}
+
+.btn-start:hover {
+  background: #c45a7b;
+  transform: scale(1.02);
+}
+
+/* Progress */
+.progress-bar {
+  background: #e8e0d8;
+  border-radius: 8px;
+  height: 6px;
+  margin: 20px 0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  background: #d4698a;
+  height: 100%;
+  border-radius: 8px;
+  transition: width 0.4s ease;
+}
+
+.question-count {
+  text-align: center;
+  font-size: 0.85em;
+  color: #8a7e76;
+  margin-bottom: 8px;
+}
+
+/* Question */
+.question-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.question-card h2 {
+  font-size: 1.1em;
+  line-height: 1.4;
+  margin-bottom: 20px;
+  color: #2d2a26;
+}
+
+.answer-option {
+  display: block;
+  width: 100%;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  background: #faf6f2;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-size: 0.95em;
+  line-height: 1.4;
+  color: #2d2a26;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+}
+
+.answer-option:hover {
+  border-color: #d4698a;
+  background: #fdf0f4;
+}
+
+.answer-option.selected {
+  border-color: #d4698a;
+  background: #fdf0f4;
+  font-weight: 600;
+}
+
+/* Result */
+.result-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  text-align: center;
+  animation: fadeIn 0.5s ease;
+}
+
+.result-emoji {
+  font-size: 4em;
+  margin-bottom: 12px;
+}
+
+.result-card h2 {
+  font-size: 1.4em;
+  color: #d4698a;
+  margin-bottom: 8px;
+}
+
+.result-card .type-name {
+  font-size: 1.1em;
+  color: #8a7e76;
+  margin-bottom: 20px;
+}
+
+.result-card .description {
+  text-align: left;
+  font-size: 0.95em;
+  line-height: 1.6;
+  color: #2d2a26;
+  margin-bottom: 24px;
+}
+
+.result-card .description p {
+  margin-bottom: 12px;
+}
+
+.result-card .description strong {
+  color: #d4698a;
+}
+
+.key-points {
+  text-align: left;
+  background: #faf6f2;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.key-points h3 {
+  font-size: 1em;
+  color: #d4698a;
+  margin-bottom: 12px;
+}
+
+.key-points ol {
+  padding-left: 20px;
+}
+
+.key-points li {
+  margin-bottom: 8px;
+  line-height: 1.5;
+  font-size: 0.9em;
+}
+
+.result-cta {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  background: #d4698a;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05em;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s, background 0.2s;
+}
+
+.result-cta:hover {
+  background: #c45a7b;
+  transform: scale(1.02);
+}
+
+.score-detail {
+  margin-top: 20px;
+  font-size: 0.8em;
+  color: #b0a89e;
+}
+
+.score-bars {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.score-bar-item {
+  text-align: center;
+  min-width: 60px;
+}
+
+.score-bar-item .bar {
+  height: 40px;
+  width: 40px;
+  border-radius: 8px;
+  margin: 0 auto 4px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  background: #e8e0d8;
+}
+
+.score-bar-item .bar-fill {
+  width: 100%;
+  background: #d4698a;
+  border-radius: 0 0 8px 8px;
+  transition: height 0.6s ease;
+}
+
+.score-bar-item .bar-fill.winner {
+  background: #d4698a;
+}
+
+.score-bar-item .bar-fill:not(.winner) {
+  background: #c4c0bb;
+}
+
+.score-bar-item .label {
+  font-size: 0.75em;
+  color: #8a7e76;
+}
+
+.btn-restart {
+  margin-top: 16px;
+  padding: 12px 24px;
+  background: transparent;
+  border: 2px solid #d4698a;
+  border-radius: 12px;
+  color: #d4698a;
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.hidden { display: none; }
+
+/* Brand footer */
+.brand {
+  text-align: center;
+  padding: 30px 0;
+  font-size: 0.8em;
+  color: #b0a89e;
+}
+
+.brand a {
+  color: #d4698a;
+  text-decoration: none;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <!-- INTRO -->
+  <div id="intro">
+    <div class="header">
+      <h1>Welcher Wutanfall-Typ<br>ist dein Kind?</h1>
+      <p class="subtitle">10 kurze Fragen — 3 Minuten — sofort dein Ergebnis</p>
+    </div>
+
+    <div class="intro">
+      <h2>Es gibt 4 Wutanfall-Typen:</h2>
+      <div class="type-preview">
+        <div class="type-card">
+          <div class="emoji">🌋</div>
+          <div class="name">Der Vulkan</div>
+          <div class="desc">Plötzliche Explosionen, von 0 auf 100</div>
+        </div>
+        <div class="type-card">
+          <div class="emoji">🐌</div>
+          <div class="name">Der Schneckenbau</div>
+          <div class="desc">Rückzug, Verweigerung, Stille</div>
+        </div>
+        <div class="type-card">
+          <div class="emoji">🌊</div>
+          <div class="name">Die Welle</div>
+          <div class="desc">Weinen in Wellen, Klammern, Angst</div>
+        </div>
+        <div class="type-card">
+          <div class="emoji">⚡</div>
+          <div class="name">Der Blitz</div>
+          <div class="desc">Provokation, Grenzen testen</div>
+        </div>
+      </div>
+      <p class="note">Die meisten Kinder haben einen Haupttyp — manche zeigen Mischformen. Der Test zeigt dir deinen Haupttyp.</p>
+    </div>
+
+    <button class="btn-start" onclick="startQuiz()">Test starten →</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="hidden">
+    <div class="question-count" id="questionCount"></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="question-card" id="questionCard"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="hidden"></div>
+
+  <div class="brand">
+    Die Wutversteherin — <a href="#">Susanne Hüttner</a><br>
+    #kinderleicht
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Wie beginnt ein typischer Wutanfall bei deinem Kind?",
+    a: [
+      "Plötzlich — eben noch okay, dann Explosion",
+      "Langsam — erst still, dann Verweigerung",
+      "Mit Weinen und Klammern",
+      "Mit Provokation — Schimpfwörter oder Hauen"
+    ]
+  },
+  {
+    q: "Was passiert während des Wutanfalls?",
+    a: [
+      "Schreien, Werfen, auf den Boden werfen",
+      "Rückzug, Schweigen, „Ich will nicht"",
+      "Weinen, festhalten, „Geh nicht weg!"",
+      "Aktives Provozieren, Grenzen austesten"
+    ]
+  },
+  {
+    q: "Wann passieren Wutanfälle am häufigsten?",
+    a: [
+      "Nach einem langen, vollen Tag",
+      "Wenn viel von deinem Kind erwartet wird",
+      "Bei Abschieden oder Veränderungen",
+      "Wenn etwas verboten wird"
+    ]
+  },
+  {
+    q: "Wie reagiert dein Kind, wenn du es trösten willst?",
+    a: [
+      "Lässt sich erst nicht anfassen — dann plötzlich Kuscheln",
+      "Dreht sich weg, braucht erstmal Raum",
+      "Klammert sich sofort an dich",
+      "Wird erst noch wütender, dann langsam weicher"
+    ]
+  },
+  {
+    q: "Was hilft deinem Kind am meisten?",
+    a: [
+      "Ruhe und einfach da sein",
+      "Weniger Druck und klare, einfache Ansagen",
+      "Körperkontakt und feste Rituale",
+      "Wahlmöglichkeiten und Mitbestimmung"
+    ]
+  },
+  {
+    q: "Wie fühlt sich dein Kind NACH dem Wutanfall?",
+    a: [
+      "Erschöpft und anhänglich",
+      "Erleichtert, sobald der Druck weg ist",
+      "Unsicher und sucht Bestätigung",
+      "Als wäre nichts gewesen — spielt normal weiter"
+    ]
+  },
+  {
+    q: "Was fühlst DU während des Wutanfalls am meisten?",
+    a: [
+      "Ich bin überrumpelt und weiß nicht, was ich tun soll",
+      "Ich werde ungeduldig — „Jetzt mach halt!"",
+      "Ich fühle mich schuldig — „Bin ich eine schlechte Mutter?"",
+      "Ich werde selbst wütend — „Das akzeptiere ich nicht!""
+    ]
+  },
+  {
+    q: "In welcher Situation eskaliert es am häufigsten?",
+    a: [
+      "Abends oder vor dem Einschlafen",
+      "Morgens beim Anziehen oder bei Schulaufgaben",
+      "In neuen Situationen oder bei fremden Menschen",
+      "Wenn andere Leute dabei sind"
+    ]
+  },
+  {
+    q: "Welcher Satz fällt bei deinem Kind am häufigsten?",
+    a: [
+      "Gar keine Worte — nur Schreien",
+      "„Ich kann nicht!" oder „Ich will nicht mehr!"",
+      "„Mama bleib hier!" oder „Geh nicht weg!"",
+      "„Du bist doof!" oder „Ich hasse dich!""
+    ]
+  },
+  {
+    q: "Was wünschst du dir am meisten?",
+    a: [
+      "Dass ich den Ausbruch kommen sehe, bevor er passiert",
+      "Dass mein Kind mir sagt, was wirklich los ist",
+      "Dass mein Kind sich sicher fühlt — auch ohne mich",
+      "Dass wir weniger kämpfen und mehr zusammenarbeiten"
+    ]
+  }
+];
+
+const types = {
+  vulkan: {
+    emoji: "🌋",
+    name: "Der Vulkan",
+    subtitle: "Dein Kind verarbeitet Reize intensiver als andere.",
+    desc: `<p><strong>Das bedeutet nicht, dass etwas „falsch" ist</strong> — es bedeutet, dass dein Kind den ganzen Tag Eindrücke sammelt und irgendwann alles auf einmal rauslässt.</p>
+<p>Vulkan-Kinder sind oft besonders empfindsam und aufmerksam. Sie nehmen mehr wahr als andere — und brauchen deshalb auch mehr Entlastung.</p>`,
+    points: [
+      "Der Ausbruch ist nicht gegen dich gerichtet",
+      "Nach dem Vulkan kommt immer die Ruhe",
+      "Prävention ist wichtiger als Reaktion — behalte die Reizbilanz im Blick"
+    ]
+  },
+  schnecke: {
+    emoji: "🐌",
+    name: "Der Schneckenbau",
+    subtitle: "Dein Kind schützt sich, wenn es überfordert ist.",
+    desc: `<p><strong>Das bedeutet nicht, dass dein Kind „keine Gefühle zeigt"</strong> — es bedeutet, dass es sich zurückzieht, um sich vor Überforderung zu schützen.</p>
+<p>Schneckenbau-Kinder fühlen intensiv, zeigen es nur anders. Ihr Rückzug ist kein Trotz — es ist ihr Weg, sich selbst zu regulieren.</p>`,
+    points: [
+      "Rückzug ist kein Trotz — es ist Überlastungsschutz",
+      "Dein Kind braucht Zeit, keinen Druck",
+      "Einfache Ja/Nein-Fragen helfen mehr als „Was ist los?""
+    ]
+  },
+  welle: {
+    emoji: "🌊",
+    name: "Die Welle",
+    subtitle: "Bindung und Sicherheit sind das größte Bedürfnis deines Kindes.",
+    desc: `<p><strong>Das bedeutet nicht, dass dein Kind „zu sensibel" ist</strong> — es bedeutet, dass Beziehung und Nähe für dein Kind lebensnotwendig sind.</p>
+<p>Welle-Kinder klammern nicht aus Schwäche — sie zeigen dir damit ihr Vertrauen. Du bist ihr sicherer Hafen.</p>`,
+    points: [
+      "Klammern ist ein Zeichen von Vertrauen, nicht von Schwäche",
+      "Feste Rituale geben mehr Sicherheit als jede Erklärung",
+      "Dein Kind braucht zuerst Halt — dann erst Worte"
+    ]
+  },
+  blitz: {
+    emoji: "⚡",
+    name: "Der Blitz",
+    subtitle: "Dein Kind hat ein starkes Bedürfnis nach Autonomie.",
+    desc: `<p><strong>Das bedeutet nicht, dass dein Kind „frech" oder „ungezogen" ist</strong> — es bedeutet, dass es ein starkes Bedürfnis hat, selbst zu entscheiden und Kontrolle zu haben.</p>
+<p>Blitz-Kinder sind oft besonders willensstark und eigenständig. Diese Eigenschaft wird ihnen als Erwachsene enorm helfen — jetzt brauchen sie Begleitung, keine Unterdrückung.</p>`,
+    points: [
+      "Provokation ist kein Angriff — es ist ein Hilferuf nach Mitbestimmung",
+      "Machtkämpfe gewinnt niemand — Wahlmöglichkeiten schon",
+      "Dein Kind will nicht GEGEN dich sein — es will FÜR sich entscheiden dürfen"
+    ]
+  }
+};
+
+const typeKeys = ["vulkan", "schnecke", "welle", "blitz"];
+let scores = [0, 0, 0, 0];
+let current = 0;
+
+function startQuiz() {
+  document.getElementById("intro").classList.add("hidden");
+  document.getElementById("quiz").classList.remove("hidden");
+  scores = [0, 0, 0, 0];
+  current = 0;
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = questions[current];
+  document.getElementById("questionCount").textContent = `Frage ${current + 1} von ${questions.length}`;
+  document.getElementById("progressFill").style.width = `${((current) / questions.length) * 100}%`;
+  
+  let html = `<h2>${q.q}</h2>`;
+  q.a.forEach((a, i) => {
+    html += `<button class="answer-option" onclick="selectAnswer(${i})">${a}</button>`;
+  });
+  
+  document.getElementById("questionCard").innerHTML = html;
+}
+
+function selectAnswer(idx) {
+  scores[idx]++;
+  
+  // Brief highlight
+  const btns = document.querySelectorAll(".answer-option");
+  btns[idx].classList.add("selected");
+  btns.forEach(b => b.disabled = true);
+  
+  setTimeout(() => {
+    current++;
+    if (current < questions.length) {
+      showQuestion();
+    } else {
+      showResult();
+    }
+  }, 400);
+}
+
+function showResult() {
+  document.getElementById("quiz").classList.add("hidden");
+  document.getElementById("result").classList.remove("hidden");
+  
+  const maxScore = Math.max(...scores);
+  let winnerIdx = scores.indexOf(maxScore);
+  
+  // Bei Gleichstand: Frage 1+2 entscheiden
+  // (Wir tracken das nicht separat, also nehmen wir den ersten mit Max)
+  
+  const winner = types[typeKeys[winnerIdx]];
+  const total = scores.reduce((a, b) => a + b, 0);
+  
+  let barsHtml = typeKeys.map((key, i) => {
+    const pct = Math.round((scores[i] / total) * 100);
+    const h = Math.max(8, (scores[i] / maxScore) * 36);
+    const isWinner = i === winnerIdx;
+    return `<div class="score-bar-item">
+      <div class="bar"><div class="bar-fill ${isWinner ? 'winner' : ''}" style="height:${h}px"></div></div>
+      <div class="label">${types[key].emoji} ${pct}%</div>
+    </div>`;
+  }).join("");
+  
+  document.getElementById("result").innerHTML = `
+    <div class="result-card">
+      <div class="result-emoji">${winner.emoji}</div>
+      <h2>Dein Ergebnis:</h2>
+      <div class="type-name">${winner.name}</div>
+      
+      <div class="description">
+        <p><em>${winner.subtitle}</em></p>
+        ${winner.desc}
+      </div>
+      
+      <div class="key-points">
+        <h3>Die 3 wichtigsten Dinge, die du wissen musst:</h3>
+        <ol>
+          ${winner.points.map(p => `<li>${p}</li>`).join("")}
+        </ol>
+      </div>
+      
+      <a href="#" class="result-cta">Hol dir deinen kostenlosen Notfallkoffer →</a>
+      
+      <div class="score-detail">
+        Dein Profil:
+        <div class="score-bars">${barsHtml}</div>
+      </div>
+      
+      <button class="btn-restart" onclick="restart()">Test nochmal machen</button>
+    </div>
+  `;
+}
+
+function restart() {
+  document.getElementById("result").classList.add("hidden");
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("intro").classList.remove("hidden");
+}
+</script>
+
+</body>
+</html>
