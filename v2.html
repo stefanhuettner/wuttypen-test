@@ -395,6 +395,17 @@ body {
   color: #d4698a;
 }
 
+/* Logo */
+.logo-header {
+  text-align: center;
+  padding: 24px 0 0;
+}
+
+.logo-header .logo {
+  max-width: 220px;
+  height: auto;
+}
+
 .hidden { display: none; }
 
 /* Brand footer */
@@ -414,6 +425,11 @@ body {
 <body>
 
 <div class="container">
+  <!-- LOGO -->
+  <div class="logo-header">
+    <img src="logo-kinderleicht.png" alt="Susanne Hüttner — #kinderleicht" class="logo">
+  </div>
+
   <!-- INTRO -->
   <div id="intro">
     <div class="header">
@@ -445,7 +461,7 @@ body {
           <div class="desc">Provokation, Grenzen testen</div>
         </div>
       </div>
-      <p class="note">Die meisten Kinder haben einen Haupttyp — manche zeigen Mischformen. Der Test zeigt dir deinen Haupttyp.</p>
+      <p class="note">Die meisten Kinder haben einen Haupttyp — manche zeigen Mischformen. Der Test zeigt dir den Haupttyp deines Kindes.</p>
     </div>
 
     <button class="btn-start" onclick="startQuiz()">Test starten →</button>
@@ -478,8 +494,8 @@ const questions = [
     a: [
       "Plötzlich — eben noch okay, dann Explosion",
       "Langsam — erst still, dann Verweigerung",
-      "Mit Weinen und Klammern",
-      "Mit Provokation — Schimpfwörter oder Hauen"
+      "Mit Weinen und anhänglichem Verhalten",
+      "Mit Provokation — Schimpfwörter, Hauen und Tür knallen"
     ]
   },
   {
@@ -531,7 +547,7 @@ const questions = [
     q: "Was fühlst DU während des Wutanfalls am meisten?",
     a: [
       "Ich bin überrumpelt und weiß nicht, was ich tun soll",
-      "Ich werde ungeduldig — 'Jetzt mach halt!'",
+      "Ich werde ungeduldig — 'Jetzt mach endlich!'",
       "Ich fühle mich schuldig — 'Bin ich eine schlechte Mutter?'",
       "Ich werde selbst wütend — 'Das akzeptiere ich nicht!'"
     ]
