@@ -631,12 +631,19 @@ function showQuestion() {
   document.getElementById("questionCount").textContent = `Frage ${current + 1} von ${questions.length}`;
   document.getElementById("progressFill").style.width = `${((current) / questions.length) * 100}%`;
   
+  // Alten Container entfernen und neuen erstellen (reset Animation + Zustand)
+  const oldCard = document.getElementById("questionCard");
+  const newCard = document.createElement("div");
+  newCard.className = "question-card";
+  newCard.id = "questionCard";
+  
   let html = `<h2>${q.q}</h2>`;
   q.a.forEach((a, i) => {
     html += `<button class="answer-option" onclick="selectAnswer(${i})">${a}</button>`;
   });
+  newCard.innerHTML = html;
   
-  document.getElementById("questionCard").innerHTML = html;
+  oldCard.parentNode.replaceChild(newCard, oldCard);
 }
 
 function selectAnswer(idx) {
