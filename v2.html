@@ -843,7 +843,18 @@ async function submitOptin(e) {
   const wuttypEmoji = types[wuttyp].emoji;
   
   try {
-    // Step 1: Submit ML form FIRST (triggers form-specific double opt-in)
+    // Step 1: Create subscriber with fields FIRST (no group = no confirmation email)
+    await fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email, name, wuttyp, wuttyp_name: wuttypName,
+        wuttyp_emoji: wuttypEmoji, group_id: ML_GROUP_ID
+      })
+    }).catch(() => {});
+    
+    // Step 2: Submit ML form (triggers form-specific double opt-in)
+    // Subscriber already exists with all fields, so automation will have data
     const iframe = document.createElement('iframe');
     iframe.name = 'ml-submit-frame';
     iframe.style.display = 'none';
