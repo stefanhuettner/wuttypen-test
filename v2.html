@@ -847,31 +847,33 @@ async function submitOptin(e) {
   const wuttypEmoji = types[wuttyp].emoji;
   
   try {
-    // 1. Send custom fields via our API (wuttyp data)
-    fetch("/api/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: email,
-        name: name,
-        wuttyp: wuttyp,
-        wuttyp_name: wuttypName,
-        wuttyp_emoji: wuttypEmoji,
-        group_id: ML_GROUP_ID
-      })
-    }).catch(() => {});
-    
-    // 2. Submit the hidden MailerLite form (triggers double opt-in with custom confirmation)
+    // 1. FIRST: Submit MailerLite form (triggers form-specific double opt-in)
     const mlForm = document.querySelector('.ml-embedded form');
     if (mlForm) {
       const mlEmail = mlForm.querySelector('input[type="email"]');
       const mlName = mlForm.querySelector('input[name="fields[name]"], input[name="name"]');
       if (mlEmail) mlEmail.value = email;
       if (mlName) mlName.value = name;
-      mlForm.dispatchEvent(new Event('submit', { bubbles: true }));
+      mlForm.requestSubmit ? mlForm.requestSubmit() : mlForm.dispatchEvent(new Event('submit', { bubbles: true }));
     }
     
-    // Show success
+    // 2. THEN: Update custom fields via API (after short delay so form goes first)
+    setTimeout(() => {
+      fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email,
+          name: name,
+          wuttyp: wuttyp,
+          wuttyp_name: wuttypName,
+          wuttyp_emoji: wuttypEmoji,
+          group_id: ML_GROUP_ID
+        })
+      }).catch(() => {});
+    }, 2000);
+    
+    // Show success immediately
     document.getElementById("optinBox").classList.add("hidden");
     document.getElementById("optinSuccess").classList.remove("hidden");
   } catch (err) {
