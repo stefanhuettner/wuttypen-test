@@ -52,6 +52,13 @@ body {
   border-radius: 16px; padding: 24px; margin: 24px 0;
   text-align: center; color: #2e7d32;
 }
+.download-btn {
+  display: block; margin-top: 16px; padding: 14px 20px;
+  background: #d4698a; color: white !important; text-decoration: none;
+  border-radius: 10px; font-weight: 600; font-size: 1em;
+  text-align: center; transition: background 0.2s;
+}
+.download-btn:hover { background: #c25579; }
 .hidden { display: none; }
 
 /* Header */
@@ -775,7 +782,8 @@ function showResult() {
         <p class="optin-hint">Du bekommst die Karten + 5 typspezifische Tipps per E-Mail. Kein Spam. Jederzeit abbestellbar.</p>
       </div>
       <div id="optinSuccess" class="optin-success hidden">
-        <p>📬 <strong>Fast geschafft!</strong> Bestätige kurz deine E-Mail-Adresse — danach bekommst du die 4 Notfallkarten + deine persönliche Wuttyp-Auswertung per Mail.</p>
+        <p>📬 <strong>Fast geschafft!</strong> Bestätige kurz deine E-Mail-Adresse — danach bekommst du deine persönliche Wuttyp-Auswertung per Mail.</p>
+        <a href="/karten/notfallkarten-4-wuttypen.pdf" target="_blank" class="download-btn">📥 Alle 4 Notfallkarten jetzt herunterladen (PDF)</a>
       </div>
       
       <div class="score-detail">
