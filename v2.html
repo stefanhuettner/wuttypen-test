@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Welcher Wutanfall-Typ ist dein Kind?</title>
+<!-- MailerLite Universal -->
+<script>
+    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+    ml('account', '1100454');
+</script>
+<!-- End MailerLite Universal -->
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -784,7 +793,10 @@ function showResult() {
       <div id="optinSuccess" class="optin-success hidden">
         <p>📬 <strong>Fast geschafft!</strong> Bestätige kurz deine E-Mail-Adresse — danach bekommst du deine persönliche Wuttyp-Auswertung per Mail.</p>
         <a href="/karten/notfallkarten-4-wuttypen.pdf" target="_blank" class="download-btn">📥 Alle 4 Notfallkarten jetzt herunterladen (PDF)</a>
+        <p style="margin-top:12px;font-size:0.85em;color:#6b5e54;">Drucke die Seite aus und falte sie in der Mitte — Vorder- und Rückseite auf einer Karte.</p>
       </div>
+      <!-- Hidden MailerLite form container -->
+      <div class="ml-embedded" data-form="uqa70e" style="display:none"></div>
       
       <div class="score-detail">
         Dein Profil:
@@ -835,8 +847,8 @@ async function submitOptin(e) {
   const wuttypEmoji = types[wuttyp].emoji;
   
   try {
-    // Send to our Vercel API route
-    const res = await fetch("/api/subscribe", {
+    // 1. Send custom fields via our API (wuttyp data)
+    fetch("/api/subscribe", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -847,17 +859,22 @@ async function submitOptin(e) {
         wuttyp_emoji: wuttypEmoji,
         group_id: ML_GROUP_ID
       })
-    });
+    }).catch(() => {});
     
-    if (res.ok) {
-      document.getElementById("optinBox").classList.add("hidden");
-      document.getElementById("optinSuccess").classList.remove("hidden");
-    } else {
-      btn.textContent = "Fehler — nochmal versuchen";
-      btn.disabled = false;
+    // 2. Submit the hidden MailerLite form (triggers double opt-in with custom confirmation)
+    const mlForm = document.querySelector('.ml-embedded form');
+    if (mlForm) {
+      const mlEmail = mlForm.querySelector('input[type="email"]');
+      const mlName = mlForm.querySelector('input[name="fields[name]"], input[name="name"]');
+      if (mlEmail) mlEmail.value = email;
+      if (mlName) mlName.value = name;
+      mlForm.dispatchEvent(new Event('submit', { bubbles: true }));
     }
+    
+    // Show success
+    document.getElementById("optinBox").classList.add("hidden");
+    document.getElementById("optinSuccess").classList.remove("hidden");
   } catch (err) {
-    // Fallback: open MailerLite landing page
     btn.textContent = "Fehler — nochmal versuchen";
     btn.disabled = false;
   }
