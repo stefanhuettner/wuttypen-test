@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       console.error("Form subscribe failed:", JSON.stringify(formData));
     }
 
-    // Fallback: Regular subscriber endpoint (uses account-wide double opt-in)
+    // Update subscriber fields only (no group = no second double opt-in trigger)
     const mlRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
       method: "POST",
       headers: {
@@ -54,8 +54,7 @@ export default async function handler(req, res) {
           wuttyp: wuttyp,
           wuttyp_name: wuttyp_name,
           wuttyp_emoji: wuttyp_emoji
-        },
-        groups: [group_id]
+        }
       })
     });
 
