@@ -1,7 +1,5 @@
 {
-  "functions": {
-    "api/subscribe.js": {
-      "runtime": "@vercel/node@3"
-    }
-  }
+  "rewrites": [
+    { "source": "/api/subscribe", "destination": "/api/subscribe.js" }
+  ]
 }
