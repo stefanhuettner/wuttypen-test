@@ -92,5 +92,28 @@ h1 {
     <p style="margin-top: 8px;">💛 Susanne von <a href="https://www.instagram.com/kinderleichtmitsusanne/">@kinderleichtmitsusanne</a></p>
   </div>
 </div>
+<script>
+// After email confirmation, set wuttyp fields via API
+(function() {
+  const data = localStorage.getItem('wuttyp_data');
+  if (data) {
+    const d = JSON.parse(data);
+    fetch('/api/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: d.email,
+        name: d.name,
+        wuttyp: d.wuttyp,
+        wuttyp_name: d.wuttyp_name,
+        wuttyp_emoji: d.wuttyp_emoji,
+        group_id: '182017956354458807'
+      })
+    }).then(() => {
+      localStorage.removeItem('wuttyp_data');
+    }).catch(() => {});
+  }
+})();
+</script>
 </body>
 </html>
