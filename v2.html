@@ -4,15 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Welcher Wutanfall-Typ ist dein Kind?</title>
-<!-- MailerLite Universal -->
-<script>
-    (function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
-    .push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
-    n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
-    (window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
-    ml('account', '1100454');
-</script>
-<!-- End MailerLite Universal -->
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -796,7 +787,6 @@ function showResult() {
         <p style="margin-top:12px;font-size:0.85em;color:#6b5e54;">Drucke die Seite aus und falte sie in der Mitte — Vorder- und Rückseite auf einer Karte.</p>
       </div>
       <!-- Hidden MailerLite form container -->
-      <div class="ml-embedded" data-form="uqa70e" style="display:none"></div>
       
       <div class="score-detail">
         Dein Profil:
@@ -847,38 +837,22 @@ async function submitOptin(e) {
   const wuttypEmoji = types[wuttyp].emoji;
   
   try {
-    // Submit ONLY the MailerLite form (for form-specific double opt-in)
-    const mlForm = document.querySelector('.ml-embedded form');
-    if (mlForm) {
-      const mlEmail = mlForm.querySelector('input[type="email"]');
-      const mlName = mlForm.querySelector('input[name="fields[name]"], input[name="name"]');
-      if (mlEmail) mlEmail.value = email;
-      if (mlName) mlName.value = name;
-      mlForm.requestSubmit ? mlForm.requestSubmit() : mlForm.dispatchEvent(new Event('submit', { bubbles: true }));
-    }
+    // Use our API to subscribe via the FORM endpoint (triggers form-specific double opt-in)
+    const res = await fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email,
+        name: name,
+        wuttyp: wuttyp,
+        wuttyp_name: wuttypName,
+        wuttyp_emoji: wuttypEmoji,
+        group_id: ML_GROUP_ID,
+        form_id: "182037554904696795"
+      })
+    });
     
-    // Store wuttyp in localStorage so we can update it after confirmation
-    localStorage.setItem('wuttyp_pending', JSON.stringify({
-      email, wuttyp, wuttyp_name: wuttypName, wuttyp_emoji: wuttypEmoji
-    }));
-    
-    // Also update fields via API after 5 seconds (subscriber exists by then as unconfirmed)
-    setTimeout(() => {
-      fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email,
-          name: name,
-          wuttyp: wuttyp,
-          wuttyp_name: wuttypName,
-          wuttyp_emoji: wuttypEmoji,
-          group_id: ML_GROUP_ID
-        })
-      }).catch(() => {});
-    }, 5000);
-    
-    // Show success immediately
+    // Show success
     document.getElementById("optinBox").classList.add("hidden");
     document.getElementById("optinSuccess").classList.remove("hidden");
   } catch (err) {
