@@ -15,7 +15,6 @@ export default async function handler(req, res) {
   if (!ML_TOKEN) return res.status(500).json({ error: "Server config error" });
 
   try {
-    // Add subscriber to MailerLite with group + custom fields
     const mlRes = await fetch("https://connect.mailerlite.com/api/subscribers", {
       method: "POST",
       headers: {
@@ -36,10 +35,10 @@ export default async function handler(req, res) {
 
     const data = await mlRes.json();
     
-    if (mlRes.ok || mlRes.status === 200 || mlRes.status === 201) {
+    if (mlRes.ok) {
       return res.status(200).json({ success: true, status: data?.data?.status });
     } else {
-      console.error("MailerLite error:", data);
+      console.error("MailerLite error:", JSON.stringify(data));
       return res.status(mlRes.status).json({ error: data?.message || "MailerLite error" });
     }
   } catch (err) {
