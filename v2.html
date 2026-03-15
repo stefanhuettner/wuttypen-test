@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Welcher Wutanfall-Typ ist dein Kind?</title>
+<!-- MailerLite Universal -->
+<script>
+(function(w,d,e,u,f,l,n){w[f]=w[f]||function(){(w[f].q=w[f].q||[])
+.push(arguments);},l=d.createElement(e),l.async=1,l.src=u,
+n=d.getElementsByTagName(e)[0],n.parentNode.insertBefore(l,n);})
+(window,document,'script','https://assets.mailerlite.com/js/universal.js','ml');
+ml('account', '1100454');
+</script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -675,7 +683,6 @@ const types = {
 
 // MailerLite config
 const ML_GROUP_ID = "182017956354458807";
-const ML_API_PROXY = null; // We'll use a serverless function or direct API
 
 const typeKeys = ["vulkan", "schnecke", "welle", "blitz"];
 let scores = [0, 0, 0, 0];
@@ -772,21 +779,13 @@ function showResult() {
       </div>
       
       <div class="optin-box" id="optinBox">
-        <h3>🎁 Alle 4 Notfallkarten kostenlos per E-Mail</h3>
-        <p>Für jeden Wuttyp eine Karte — zum Ausdrucken und an den Kühlschrank hängen.</p>
-        <form id="optinForm" onsubmit="submitOptin(event)">
-          <input type="text" id="optinName" placeholder="Dein Vorname" class="optin-input" />
-          <input type="email" id="optinEmail" placeholder="Deine E-Mail-Adresse" class="optin-input" required />
-          <button type="submit" class="optin-btn" id="optinBtn">Notfallkarten anfordern →</button>
-        </form>
-        <p class="optin-hint">Du bekommst die Karten + 5 typspezifische Tipps per E-Mail. Kein Spam. Jederzeit abbestellbar.</p>
+        <div class="ml-embedded" data-form="uqa70e"></div>
       </div>
       <div id="optinSuccess" class="optin-success hidden">
         <p>📬 <strong>Fast geschafft!</strong> Bestätige kurz deine E-Mail-Adresse — danach bekommst du deine persönliche Wuttyp-Auswertung per Mail.</p>
         <a href="/karten/notfallkarten-4-wuttypen.pdf" target="_blank" class="download-btn">📥 Alle 4 Notfallkarten jetzt herunterladen (PDF)</a>
         <p style="margin-top:12px;font-size:0.85em;color:#6b5e54;">Drucke die Seite aus und falte sie in der Mitte — Vorder- und Rückseite auf einer Karte.</p>
       </div>
-      <!-- Hidden MailerLite form container -->
       
       <div class="score-detail">
         Dein Profil:
@@ -821,45 +820,54 @@ function showResult() {
 // Track winner globally for optin
 let currentWinnerKey = "";
 
-async function submitOptin(e) {
-  e.preventDefault();
-  const btn = document.getElementById("optinBtn");
-  const email = document.getElementById("optinEmail").value.trim();
-  const name = document.getElementById("optinName").value.trim();
+// Watch for MailerLite form submission and update wuttyp fields
+function setupMLFormWatcher() {
+  const observer = new MutationObserver(() => {
+    // Check if ML form shows success state
+    const successEl = document.querySelector('.ml-embedded .ml-form-successContent');
+    if (successEl && successEl.offsetParent !== null) {
+      // Form was submitted! Get email from the form
+      const emailInput = document.querySelector('.ml-embedded input[type="email"]');
+      const nameInput = document.querySelector('.ml-embedded input[name="fields[name]"]');
+      const email = emailInput ? emailInput.value : '';
+      const name = nameInput ? nameInput.value : '';
+      
+      if (email && currentWinnerKey) {
+        const wuttyp = currentWinnerKey;
+        const wuttypName = types[wuttyp].name.replace("Der ", "").replace("Die ", "");
+        const wuttypEmoji = types[wuttyp].emoji;
+        
+        // Update wuttyp fields via API (delayed to let ML process first)
+        setTimeout(() => {
+          fetch("/api/subscribe", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email, name, wuttyp, wuttyp_name: wuttypName, 
+              wuttyp_emoji: wuttypEmoji, group_id: ML_GROUP_ID
+            })
+          }).catch(() => {});
+        }, 3000);
+      }
+      
+      // Show our custom success with download button
+      document.getElementById("optinBox").classList.add("hidden");
+      document.getElementById("optinSuccess").classList.remove("hidden");
+      observer.disconnect();
+    }
+  });
   
-  if (!email) return;
-  
-  btn.disabled = true;
-  btn.textContent = "Wird gesendet...";
-  
-  const wuttyp = currentWinnerKey;
-  const wuttypName = types[wuttyp].name.replace("Der ", "").replace("Die ", "");
-  const wuttypEmoji = types[wuttyp].emoji;
-  
-  try {
-    // Use our API to subscribe via the FORM endpoint (triggers form-specific double opt-in)
-    const res = await fetch("/api/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: email,
-        name: name,
-        wuttyp: wuttyp,
-        wuttyp_name: wuttypName,
-        wuttyp_emoji: wuttypEmoji,
-        group_id: ML_GROUP_ID,
-        form_id: "182037554904696795"
-      })
-    });
-    
-    // Show success
-    document.getElementById("optinBox").classList.add("hidden");
-    document.getElementById("optinSuccess").classList.remove("hidden");
-  } catch (err) {
-    btn.textContent = "Fehler — nochmal versuchen";
-    btn.disabled = false;
-  }
+  const target = document.querySelector('.ml-embedded') || document.body;
+  observer.observe(target, { childList: true, subtree: true, attributes: true });
 }
+
+// Start watching when result is shown
+const origShowResult = showResult;
+showResult = function() {
+  origShowResult();
+  // Give ML form time to load, then start watching
+  setTimeout(setupMLFormWatcher, 2000);
+};
 
 function restart() {
   document.getElementById("result").classList.add("hidden");
