@@ -843,7 +843,18 @@ async function submitOptin(e) {
   const wuttypEmoji = types[wuttyp].emoji;
   
   try {
-    // Submit to MailerLite via hidden iframe form (triggers form-specific double opt-in)
+    // Step 1: FIRST set all fields via API (no group = no double opt-in trigger)
+    await fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email, name, wuttyp, wuttyp_name: wuttypName,
+        wuttyp_emoji: wuttypEmoji, group_id: ML_GROUP_ID
+      })
+    });
+    
+    // Step 2: THEN submit ML form (triggers form-specific double opt-in + group)
+    // Fields are already set, so automation email will have all data
     const iframe = document.createElement('iframe');
     iframe.name = 'ml-submit-frame';
     iframe.style.display = 'none';
@@ -854,14 +865,14 @@ async function submitOptin(e) {
     form.action = 'https://assets.mailerlite.com/jsonp/1100454/forms/182037554904696795/subscribe';
     form.target = 'ml-submit-frame';
     
-    const fields = {
+    const formFields = {
       'fields[email]': email,
       'fields[name]': name,
       'ml-submit': '1',
       'anticsrf': 'true'
     };
     
-    for (const [k, v] of Object.entries(fields)) {
+    for (const [k, v] of Object.entries(formFields)) {
       const input = document.createElement('input');
       input.type = 'hidden';
       input.name = k;
@@ -871,18 +882,6 @@ async function submitOptin(e) {
     
     document.body.appendChild(form);
     form.submit();
-    
-    // Also set wuttyp fields via our API (delayed)
-    setTimeout(() => {
-      fetch("/api/subscribe", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email, name, wuttyp, wuttyp_name: wuttypName,
-          wuttyp_emoji: wuttypEmoji, group_id: ML_GROUP_ID
-        })
-      }).catch(() => {});
-    }, 3000);
     
     // Show success
     document.getElementById("optinBox").classList.add("hidden");
