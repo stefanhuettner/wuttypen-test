@@ -843,18 +843,7 @@ async function submitOptin(e) {
   const wuttypEmoji = types[wuttyp].emoji;
   
   try {
-    // Step 1: FIRST set all fields via API (no group = no double opt-in trigger)
-    await fetch("/api/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email, name, wuttyp, wuttyp_name: wuttypName,
-        wuttyp_emoji: wuttypEmoji, group_id: ML_GROUP_ID
-      })
-    });
-    
-    // Step 2: THEN submit ML form (triggers form-specific double opt-in + group)
-    // Fields are already set, so automation email will have all data
+    // Step 1: Submit ML form FIRST (triggers form-specific double opt-in)
     const iframe = document.createElement('iframe');
     iframe.name = 'ml-submit-frame';
     iframe.style.display = 'none';
@@ -882,6 +871,18 @@ async function submitOptin(e) {
     
     document.body.appendChild(form);
     form.submit();
+    
+    // Step 2: Set wuttyp fields via API AFTER form submit (5s delay)
+    setTimeout(() => {
+      fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email, name, wuttyp, wuttyp_name: wuttypName,
+          wuttyp_emoji: wuttypEmoji, group_id: ML_GROUP_ID
+        })
+      }).catch(() => {});
+    }, 5000);
     
     // Show success
     document.getElementById("optinBox").classList.add("hidden");
