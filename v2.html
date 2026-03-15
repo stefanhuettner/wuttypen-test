@@ -20,6 +20,40 @@ body {
   padding: 20px;
 }
 
+/* Opt-in Box */
+.optin-box {
+  background: linear-gradient(135deg, #d4698a15, #698ba415);
+  border: 2px solid #d4698a40;
+  border-radius: 16px;
+  padding: 24px;
+  margin: 24px 0;
+  text-align: center;
+}
+.optin-box h3 { color: #d4698a; margin-bottom: 8px; font-size: 1.15em; }
+.optin-box p { color: #6b5e54; font-size: 0.9em; margin-bottom: 12px; }
+.optin-input {
+  display: block; width: 100%; padding: 14px 16px;
+  border: 2px solid #e1d0c6; border-radius: 10px;
+  font-size: 1em; margin-bottom: 10px; background: white;
+  outline: none; transition: border-color 0.2s;
+}
+.optin-input:focus { border-color: #d4698a; }
+.optin-btn {
+  display: block; width: 100%; padding: 16px;
+  background: #d4698a; color: white; border: none;
+  border-radius: 10px; font-size: 1.05em; font-weight: 600;
+  cursor: pointer; transition: background 0.2s;
+}
+.optin-btn:hover { background: #c25579; }
+.optin-btn:disabled { background: #ccc; cursor: wait; }
+.optin-hint { font-size: 0.78em !important; color: #a09890 !important; margin-top: 8px !important; }
+.optin-success {
+  background: #e8f5e9; border: 2px solid #4caf5040;
+  border-radius: 16px; padding: 24px; margin: 24px 0;
+  text-align: center; color: #2e7d32;
+}
+.hidden { display: none; }
+
 /* Header */
 .header {
   text-align: center;
@@ -632,6 +666,10 @@ const types = {
   }
 };
 
+// MailerLite config
+const ML_GROUP_ID = "182017956354458807";
+const ML_API_PROXY = null; // We'll use a serverless function or direct API
+
 const typeKeys = ["vulkan", "schnecke", "welle", "blitz"];
 let scores = [0, 0, 0, 0];
 let current = 0;
@@ -695,6 +733,7 @@ function showResult() {
   // (Wir tracken das nicht separat, also nehmen wir den ersten mit Max)
   
   const winner = types[typeKeys[winnerIdx]];
+  currentWinnerKey = typeKeys[winnerIdx];
   const total = scores.reduce((a, b) => a + b, 0);
   
   let barsHtml = typeKeys.map((key, i) => {
@@ -725,7 +764,19 @@ function showResult() {
         </ol>
       </div>
       
-      <a href="#" class="result-cta">Hol dir deinen kostenlosen Notfallkoffer →</a>
+      <div class="optin-box" id="optinBox">
+        <h3>🎁 Alle 4 Notfallkarten kostenlos per E-Mail</h3>
+        <p>Für jeden Wuttyp eine Karte — zum Ausdrucken und an den Kühlschrank hängen.</p>
+        <form id="optinForm" onsubmit="submitOptin(event)">
+          <input type="text" id="optinName" placeholder="Dein Vorname" class="optin-input" />
+          <input type="email" id="optinEmail" placeholder="Deine E-Mail-Adresse" class="optin-input" required />
+          <button type="submit" class="optin-btn" id="optinBtn">Notfallkarten anfordern →</button>
+        </form>
+        <p class="optin-hint">Du bekommst die Karten + 5 typspezifische Tipps per E-Mail. Kein Spam. Jederzeit abbestellbar.</p>
+      </div>
+      <div id="optinSuccess" class="optin-success hidden">
+        <p>✅ <strong>Check dein Postfach!</strong> Die Notfallkarten sind unterwegs.</p>
+      </div>
       
       <div class="score-detail">
         Dein Profil:
@@ -755,6 +806,53 @@ function showResult() {
       navigator.clipboard.writeText(shareUrl).then(() => { this.textContent = '✅ Kopiert!'; });
     };
   }, 100);
+}
+
+// Track winner globally for optin
+let currentWinnerKey = "";
+
+async function submitOptin(e) {
+  e.preventDefault();
+  const btn = document.getElementById("optinBtn");
+  const email = document.getElementById("optinEmail").value.trim();
+  const name = document.getElementById("optinName").value.trim();
+  
+  if (!email) return;
+  
+  btn.disabled = true;
+  btn.textContent = "Wird gesendet...";
+  
+  const wuttyp = currentWinnerKey;
+  const wuttypName = types[wuttyp].name.replace("Der ", "").replace("Die ", "");
+  const wuttypEmoji = types[wuttyp].emoji;
+  
+  try {
+    // Send to our Vercel API route
+    const res = await fetch("/api/subscribe", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email: email,
+        name: name,
+        wuttyp: wuttyp,
+        wuttyp_name: wuttypName,
+        wuttyp_emoji: wuttypEmoji,
+        group_id: ML_GROUP_ID
+      })
+    });
+    
+    if (res.ok) {
+      document.getElementById("optinBox").classList.add("hidden");
+      document.getElementById("optinSuccess").classList.remove("hidden");
+    } else {
+      btn.textContent = "Fehler — nochmal versuchen";
+      btn.disabled = false;
+    }
+  } catch (err) {
+    // Fallback: open MailerLite landing page
+    btn.textContent = "Fehler — nochmal versuchen";
+    btn.disabled = false;
+  }
 }
 
 function restart() {
