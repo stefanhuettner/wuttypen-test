@@ -1,4 +1,5 @@
 {
+  "cleanUrls": true,
   "rewrites": [
     { "source": "/api/subscribe", "destination": "/api/subscribe.js" },
     { "source": "/api/club-warteliste", "destination": "/api/club-warteliste.js" }
