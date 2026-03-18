@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Wuttypen-Test — Versionsvergleich</title>
+<title>#kinderleicht mit Susanne Hüttner</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  font-family: -apple-system, 'Segoe UI', sans-serif;
-  background: #faf6f2;
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: #E1D0C6;
   color: #2d2a26;
   min-height: 100vh;
   display: flex;
@@ -17,85 +17,80 @@ body {
 }
 .container {
   max-width: 500px;
-  padding: 40px 20px;
+  padding: 40px 24px;
   text-align: center;
 }
+.logo {
+  font-size: 2.5em;
+  margin-bottom: 16px;
+}
 h1 {
-  font-size: 1.5em;
+  font-size: 1.6em;
   color: #d4698a;
   margin-bottom: 8px;
+  line-height: 1.3;
 }
 .subtitle {
-  color: #8a7e76;
+  font-size: 1em;
+  color: #698BA4;
   margin-bottom: 32px;
-  font-size: 0.95em;
+  font-weight: 600;
 }
-.versions {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.version-card {
+.message {
   background: white;
   border-radius: 16px;
-  padding: 24px;
+  padding: 32px;
+  margin-bottom: 24px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-  text-decoration: none;
-  color: #2d2a26;
-  transition: transform 0.15s, box-shadow 0.2s;
 }
-.version-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+.message p {
+  font-size: 1.05em;
+  line-height: 1.7;
+  color: #515856;
+  margin-bottom: 16px;
 }
-.version-card h2 {
-  font-size: 1.15em;
-  color: #d4698a;
-  margin-bottom: 6px;
-}
-.version-card p {
-  font-size: 0.9em;
-  color: #8a7e76;
-  line-height: 1.5;
-}
-.tag {
+.cta {
   display: inline-block;
-  padding: 3px 10px;
-  border-radius: 20px;
-  font-size: 0.75em;
+  padding: 14px 28px;
+  background: #d4698a;
+  color: white;
+  text-decoration: none;
+  border-radius: 12px;
+  font-size: 1.05em;
   font-weight: 600;
-  margin-top: 10px;
+  transition: transform 0.15s, background 0.2s;
 }
-.tag.v1 { background: #e8e0d8; color: #6b6259; }
-.tag.v2 { background: #fdf0f4; color: #d4698a; }
-.brand {
-  margin-top: 40px;
+.cta:hover { background: #c45a7b; transform: scale(1.02); }
+.footer {
+  margin-top: 32px;
   font-size: 0.8em;
-  color: #b0a89e;
+  color: #8a7e76;
 }
+.footer a { color: #698BA4; text-decoration: none; }
 </style>
 </head>
 <body>
 <div class="container">
-  <h1>🌋🐌🌊⚡</h1>
-  <h1>Wuttypen-Test</h1>
-  <p class="subtitle">Welche Version gefällt euch besser?</p>
+  <div style="margin-bottom: 20px;">
+    <img src="/susanne.jpg" alt="Susanne Hüttner" style="width: 160px; height: 160px; border-radius: 50%; object-fit: cover; object-position: center 15%; border: 4px solid #e4b7ae;">
+  </div>
+  <h1>Hier entsteht etwas Neues</h1>
+  <p class="subtitle">#kinderleicht mit Susanne H&uuml;ttner</p>
   
-  <div class="versions">
-    <a href="v1.html" class="version-card">
-      <h2>Version 1 — Original</h2>
-      <p>Mit Typ-Emojis in den Antworten.<br>Mamas sehen direkt, welchem Typ die Antwort zugeordnet ist.</p>
-      <span class="tag v1">V1 — mit Icons</span>
-    </a>
-    
-    <a href="v2.html" class="version-card">
-      <h2>Version 2 — Neutral</h2>
-      <p>Ohne Typ-Hinweise in den Fragen.<br>Typ wird erst beim Ergebnis enthüllt — kein Bias.</p>
-      <span class="tag v2">V2 — empfohlen ⭐</span>
-    </a>
+  <div class="message">
+    <p>Wut bei Kindern ist kein Problem.<br>Wut ist eine Botschaft.</p>
+    <p>Bald findest du hier alles, was du brauchst, um die Wutanf&auml;lle deines Kindes zu verstehen &mdash; und gelassener damit umzugehen.</p>
+    <p><strong>Bis dahin:</strong></p>
   </div>
   
-  <div class="brand">Die Wutversteherin — Susanne Hüttner</div>
+  <a href="/wuttypen-quiz" class="cta">
+    Mach den Wuttypen-Test &rarr;
+  </a>
+  
+  <div class="footer">
+    <p>Susanne H&uuml;ttner &mdash; Die Wutversteherin</p>
+    <p><a href="/impressum">Impressum</a> &middot; <a href="/datenschutz">Datenschutz</a></p>
+  </div>
 </div>
 </body>
 </html>
