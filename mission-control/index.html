@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🦒 Mission Control — Pia & Stefan</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #faf6f2;
+  --card-bg: #fff;
+  --text: #2d2a26;
+  --muted: #8a7e76;
+  --pink: #d4698a;
+  --blue: #698BA4;
+  --green: #5a9e6f;
+  --orange: #d4883a;
+  --red: #c45a5a;
+  --border: #e8e2dc;
+  --shadow: rgba(0,0,0,0.06);
+}
+
+body {
+  font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  font-size: 1.3em;
+  color: var(--pink);
+}
+
+.header .subtitle {
+  color: var(--muted);
+  font-size: 0.85em;
+}
+
+.header .meta {
+  text-align: right;
+  font-size: 0.8em;
+  color: var(--muted);
+}
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0;
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 12px 20px;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.9em;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.tab:hover { color: var(--text); }
+.tab.active { color: var(--pink); border-bottom-color: var(--pink); }
+
+/* Tab content */
+.tab-content { display: none; padding: 20px 24px; }
+.tab-content.active { display: block; }
+
+/* Kanban Board */
+.kanban {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 20px;
+  min-height: 60vh;
+}
+
+.column {
+  min-width: 280px;
+  max-width: 320px;
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.column-header {
+  padding: 14px 16px;
+  font-weight: 700;
+  font-size: 0.9em;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.column-header .count {
+  background: var(--border);
+  border-radius: 10px;
+  padding: 2px 8px;
+  font-size: 0.75em;
+  color: var(--muted);
+}
+
+.column-body {
+  padding: 8px;
+  flex: 1;
+  min-height: 100px;
+}
+
+.column-body.drag-over {
+  background: #f0ebe5;
+}
+
+/* Cards */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 8px;
+  cursor: grab;
+  transition: box-shadow 0.2s, transform 0.1s;
+  position: relative;
+}
+
+.card:hover {
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.card.dragging {
+  opacity: 0.5;
+  transform: rotate(2deg);
+}
+
+.card-tag {
+  font-size: 0.7em;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+.tag-kinderleicht { background: #fce4ec; color: var(--pink); }
+.tag-loewenstark { background: #fff3e0; color: var(--orange); }
+.tag-schule { background: #e3f2fd; color: var(--blue); }
+.tag-privat { background: #e8f5e9; color: var(--green); }
+.tag-technik { background: #f3e5f5; color: #7b1fa2; }
+
+.card-title {
+  font-weight: 600;
+  font-size: 0.88em;
+  margin-bottom: 4px;
+}
+
+.card-desc {
+  font-size: 0.8em;
+  color: var(--muted);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75em;
+}
+
+.card-assignee {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--muted);
+}
+
+.card-link a {
+  color: var(--blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.card-link a:hover { text-decoration: underline; }
+
+/* Skills & Cron */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.skill-card, .cron-card, .idea-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.skill-card h3, .cron-card h3 {
+  font-size: 0.95em;
+  margin-bottom: 6px;
+}
+
+.skill-card p, .cron-card p {
+  font-size: 0.82em;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.cron-time {
+  font-size: 0.75em;
+  background: #e8f5e9;
+  color: var(--green);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  display: inline-block;
+  margin-bottom: 6px;
+}
+
+/* Ideas */
+.idea-card {
+  border-left: 4px solid var(--orange);
+}
+
+.idea-card h3 {
+  font-size: 0.9em;
+  margin-bottom: 4px;
+}
+
+.idea-card p {
+  font-size: 0.8em;
+  color: var(--muted);
+}
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  font-size: 0.8em;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: var(--pink);
+  color: white;
+  border-color: var(--pink);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .kanban { flex-direction: column; }
+  .column { min-width: 100%; max-width: 100%; }
+  .header { flex-direction: column; gap: 8px; }
+}
+
+/* Password overlay */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.auth-box {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 4px 20px var(--shadow);
+  max-width: 360px;
+  width: 90%;
+}
+
+.auth-box h2 { color: var(--pink); margin-bottom: 8px; }
+.auth-box p { color: var(--muted); margin-bottom: 20px; font-size: 0.9em; }
+
+.auth-box input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1em;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.auth-box button {
+  width: 100%;
+  padding: 12px;
+  background: var(--pink);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.auth-box button:hover { background: #c45a7b; }
+.auth-error { color: var(--red); font-size: 0.85em; margin-top: 8px; display: none; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- Auth -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <h2>🦒 Mission Control</h2>
+    <p>Passwort eingeben</p>
+    <input type="password" id="authInput" placeholder="••••••" autofocus>
+    <button onclick="checkAuth()">Einloggen</button>
+    <div class="auth-error" id="authError">Falsches Passwort</div>
+  </div>
+</div>
+
+<!-- Main App -->
+<div class="hidden" id="mainApp">
+
+<div class="header">
+  <div>
+    <h1>🦒 Mission Control</h1>
+    <div class="subtitle">#kinderleicht · Löwenstark · Schule</div>
+  </div>
+  <div class="meta">
+    <div>🚀 Launch: <strong>30.03.2026</strong></div>
+    <div id="updateTime">Aktualisiert: —</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('board')">📋 Board</div>
+  <div class="tab" onclick="switchTab('skills')">🧠 Skills</div>
+  <div class="tab" onclick="switchTab('crons')">⏰ Cronjobs</div>
+  <div class="tab" onclick="switchTab('ideas')">💡 Ideen</div>
+</div>
+
+<!-- BOARD TAB -->
+<div class="tab-content active" id="tab-board">
+  <div class="filter-bar">
+    <button class="filter-btn active" onclick="filterCards('all', this)">Alle</button>
+    <button class="filter-btn" onclick="filterCards('kinderleicht', this)">👨‍👩‍👧 kinderleicht</button>
+    <button class="filter-btn" onclick="filterCards('loewenstark', this)">🦁 Löwenstark</button>
+    <button class="filter-btn" onclick="filterCards('schule', this)">🏫 Schule</button>
+    <button class="filter-btn" onclick="filterCards('technik', this)">⚙️ Technik</button>
+  </div>
+
+  <div class="kanban" id="kanban">
+    <!-- Columns rendered by JS -->
+  </div>
+</div>
+
+<!-- SKILLS TAB -->
+<div class="tab-content" id="tab-skills">
+  <div class="grid" id="skillsGrid"></div>
+</div>
+
+<!-- CRONS TAB -->
+<div class="tab-content" id="tab-crons">
+  <div class="grid" id="cronsGrid"></div>
+</div>
+
+<!-- IDEAS TAB -->
+<div class="tab-content" id="tab-ideas">
+  <div class="grid" id="ideasGrid"></div>
+</div>
+
+</div>
+
+<script>
+// === AUTH ===
+const PASS_HASH = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8'; // "password" - will be changed
+
+function checkAuth() {
+  const input = document.getElementById('authInput').value;
+  // Simple check - hash later
+  if (input === 'pia2026') {
+    document.getElementById('authOverlay').classList.add('hidden');
+    document.getElementById('mainApp').classList.remove('hidden');
+    localStorage.setItem('mc_auth', 'true');
+    loadBoard();
+  } else {
+    document.getElementById('authError').style.display = 'block';
+  }
+}
+
+document.getElementById('authInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') checkAuth();
+});
+
+if (localStorage.getItem('mc_auth') === 'true') {
+  document.getElementById('authOverlay').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+  setTimeout(loadBoard, 100);
+}
+
+// === DATA ===
+const boardData = {
+  columns: [
+    { id: 'backlog', title: '📥 Backlog', color: '#8a7e76' },
+    { id: 'this-week', title: '🔴 Diese Woche', color: '#c45a5a' },
+    { id: 'in-progress', title: '🔄 In Arbeit', color: '#d4883a' },
+    { id: 'review', title: '👁️ Review', color: '#698BA4' },
+    { id: 'done', title: '✅ Erledigt', color: '#5a9e6f' }
+  ],
+  cards: [
+    // Diese Woche
+    { id: 1, col: 'this-week', tag: 'kinderleicht', title: 'Club-Name entscheiden', desc: '5 neue Vorschläge von Pia. Mit Susanne besprechen.', assignee: '👨‍👩‍👧 Stefan + Susanne', link: 'https://docs.google.com/document/d/1hmUpn74yHnM6YdNnXuI52qSNNRJgAY645LCdTaP-Zgc/edit', linkText: 'P32 Club-Namen' },
+    { id: 2, col: 'this-week', tag: 'kinderleicht', title: 'Erstes Reel aufnehmen', desc: 'Skripte liegen bereit. Susanne vor Kamera.', assignee: '📹 Susanne', link: 'https://docs.google.com/document/d/1UdFdXhAX-TnoE0cM1sFsV3tt1XGODOHLlW1G4U1LIvE/edit', linkText: 'P35 Launch-Content' },
+    { id: 3, col: 'this-week', tag: 'kinderleicht', title: 'E-Mail-Automation testen', desc: 'Test-Mail durch den ganzen Funnel schicken.', assignee: '👨‍👩‍👧 Stefan + Pia', link: '', linkText: '' },
+    { id: 4, col: 'this-week', tag: 'kinderleicht', title: 'Datenschutz finalisieren', desc: 'Entwurf steht. Adresse einsetzen + deployen.', assignee: '🦒 Pia', link: 'https://docs.google.com/document/d/1_hHmYqzzjivglChGAP84Ixh1q0D5XfVPSBEPNTz8fk4/edit', linkText: 'P34 Datenschutz' },
+
+    // In Arbeit
+    { id: 5, col: 'in-progress', tag: 'kinderleicht', title: 'Sales Page deployen', desc: 'HTML fertig. Wartet auf Susannes Foto.', assignee: '🦒 Pia', link: '', linkText: 'P37 Sales Page' },
+    { id: 6, col: 'in-progress', tag: 'technik', title: 'Mission Control Board', desc: 'Web-Dashboard für Projektübersicht.', assignee: '🦒 Pia', link: '', linkText: '' },
+
+    // Backlog
+    { id: 7, col: 'backlog', tag: 'kinderleicht', title: 'TidyCal einrichten', desc: 'Erstgespräch-Slots festlegen.', assignee: '👨 Stefan', link: 'https://tidycal.com/shuettner/erstgespraech-30', linkText: 'TidyCal' },
+    { id: 8, col: 'backlog', tag: 'kinderleicht', title: 'Stripe einrichten', desc: 'Bezahlsystem für Mentoring aktivieren.', assignee: '👨 Stefan', link: '', linkText: '' },
+    { id: 9, col: 'backlog', tag: 'kinderleicht', title: 'Impressum deployen', desc: 'Adresse: Bulmker Str. 9, 44651 Herne', assignee: '🦒 Pia', link: '', linkText: '' },
+    { id: 10, col: 'backlog', tag: 'kinderleicht', title: 'Evergreen Newsletter', desc: 'Erste 4 Wochen vorschreiben.', assignee: '🦒 Pia + Stefan', link: '', linkText: '' },
+    { id: 11, col: 'backlog', tag: 'kinderleicht', title: 'Content-Kalender April', desc: 'Detailplanung für April.', assignee: '🦒 Pia', link: '', linkText: '' },
+    { id: 12, col: 'backlog', tag: 'schule', title: 'ARTIKUS 4/4', desc: 'Schule, 10 + 13 Uhr', assignee: '👨 Stefan', link: '', linkText: '' },
+
+    // Erledigt
+    { id: 20, col: 'done', tag: 'kinderleicht', title: 'Wuttyp-Automations', desc: '4 E-Mail-Serien in MailerLite', assignee: '🦒 Pia + Stefan', link: '', linkText: '' },
+    { id: 21, col: 'done', tag: 'kinderleicht', title: 'Willkommensserie', desc: '5 Mails eingepflegt', assignee: '👨 Stefan', link: 'https://docs.google.com/document/d/1RWpiluASnjHAUUgVbl3izlUWpKfxX34ap1duMfaQYdo/edit', linkText: 'P36e Willkommen' },
+    { id: 22, col: 'done', tag: 'kinderleicht', title: 'Club-Warteliste', desc: 'Landingpage live', assignee: '🦒 Pia', link: 'https://susannehuettner.de/club-warteliste', linkText: 'Live' },
+    { id: 23, col: 'done', tag: 'kinderleicht', title: 'Notfallkarten deployed', desc: '5 PDFs auf Vercel', assignee: '🦒 Pia', link: 'https://susannehuettner.de/downloads/notfallkarten-alle.pdf', linkText: 'Download' },
+    { id: 24, col: 'done', tag: 'kinderleicht', title: 'Mentoringpreis entschieden', desc: '997€ → 1.479€', assignee: '👨‍👩‍👧 Stefan + Susanne', link: 'https://docs.google.com/document/d/1rfzxZ7gerMc23vFFZkwlHiX-DGZq1WOr5U3_z7v2asw/edit', linkText: 'P31 Mentoring' },
+    { id: 25, col: 'done', tag: 'technik', title: 'Telegram Mission Control', desc: 'Forum-Gruppe mit 10 Topics', assignee: '🦒 Pia', link: '', linkText: '' },
+  ]
+};
+
+const skillsData = [
+  { icon: '🌤️', name: 'Weather', desc: 'Wetter und Vorhersagen über wttr.in / Open-Meteo' },
+  { icon: '📝', name: 'Notion', desc: 'Notion API — Seiten, Datenbanken, Blöcke verwalten' },
+  { icon: '🔒', name: 'Healthcheck', desc: 'Server-Sicherheit, Firewall, SSH-Härtung' },
+  { icon: '📱', name: 'Node Connect', desc: 'Diagnose für App-Verbindungen (Android/iOS/macOS)' },
+  { icon: '🎨', name: 'OpenAI Image Gen', desc: 'Bilder generieren via OpenAI DALL-E' },
+  { icon: '🎙️', name: 'OpenAI Whisper', desc: 'Audio-Transkription via Whisper API' },
+  { icon: '💬', name: 'Slack', desc: 'Slack-Integration (aktuell nicht aktiv)' },
+  { icon: '🖥️', name: 'tmux', desc: 'Terminal-Sessions fernsteuern' },
+  { icon: '🛠️', name: 'Skill Creator', desc: 'Neue Skills erstellen und verbessern' },
+  { icon: '📧', name: 'Google Mail', desc: 'E-Mails lesen und als Stefan antworten' },
+  { icon: '📅', name: 'Google Calendar', desc: 'Termine einsehen' },
+  { icon: '📁', name: 'Google Drive', desc: 'Dateien lesen, erstellen, organisieren' },
+  { icon: '🌐', name: 'Web Search', desc: 'Brave Search für Recherche' },
+  { icon: '🖥️', name: 'Browser', desc: 'Webseiten automatisieren (Playwright)' },
+  { icon: '📊', name: 'MailerLite', desc: 'E-Mail-Marketing, Automations, Subscriber' },
+  { icon: '🚀', name: 'Vercel', desc: 'Websites deployen und verwalten' },
+];
+
+const cronsData = [
+  { time: '01:00', name: '🌙 Nachtschicht', desc: 'Tägliche Review, Dashboards aktualisieren, Projekte vorantreiben', freq: 'Täglich' },
+  { time: '02:22', name: '🔄 Auto-Update', desc: 'OpenClaw auf neueste Version aktualisieren', freq: 'Täglich' },
+  { time: 'Sa 03:00', name: '🔒 Security Audit', desc: 'Server-Sicherheit prüfen, Firewall-Check', freq: 'Wöchentlich' },
+];
+
+const ideasData = [
+  { title: '🦁 Sam das Erdmännchen', desc: 'Content Sub-Agent für automatische Social Media Posts' },
+  { title: '📊 Wutanfall-Typen als Marke', desc: 'Tobias-Beck-Prinzip: Die 4 Wuttypen groß aufziehen' },
+  { title: '🎯 Content nach ZHS-Prinzip', desc: 'Evergreen Content systematisch aufbauen' },
+  { title: '📱 Instagram-Analyse', desc: 'Pädagogische Accounts analysieren für Inspiration' },
+  { title: '🏫 Grundschulseite', desc: 'Auf diestarkmacher.de eine Grundschul-Unterseite' },
+  { title: '👨‍👩‍👧 Elternabend als Upsell', desc: 'Löwenstark-Elternabend als Zusatzangebot' },
+  { title: '🎓 Webinar im Juni', desc: 'Erstes Live-Webinar für Reichweite + Verkauf' },
+  { title: '🔄 dogado kündigen', desc: 'Altes Hosting — komplett auf Vercel migriert' },
+];
+
+// === RENDER ===
+function loadBoard() {
+  renderKanban();
+  renderSkills();
+  renderCrons();
+  renderIdeas();
+  document.getElementById('updateTime').textContent = 'Aktualisiert: ' + new Date().toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function renderKanban() {
+  const kanban = document.getElementById('kanban');
+  kanban.innerHTML = '';
+
+  boardData.columns.forEach(col => {
+    const cards = boardData.cards.filter(c => c.col === col.id);
+    const colEl = document.createElement('div');
+    colEl.className = 'column';
+    colEl.innerHTML = `
+      <div class="column-header">
+        ${col.title}
+        <span class="count">${cards.length}</span>
+      </div>
+      <div class="column-body" data-col="${col.id}"
+           ondrop="drop(event)" ondragover="dragOver(event)" ondragleave="dragLeave(event)">
+        ${cards.map(card => renderCard(card)).join('')}
+      </div>
+    `;
+    kanban.appendChild(colEl);
+  });
+}
+
+function renderCard(card) {
+  const tagLabels = {
+    'kinderleicht': '#kinderleicht',
+    'loewenstark': 'Löwenstark',
+    'schule': 'Schule',
+    'privat': 'Privat',
+    'technik': 'Technik'
+  };
+
+  return `
+    <div class="card" draggable="true" data-id="${card.id}" data-tag="${card.tag}"
+         ondragstart="dragStart(event)" ondragend="dragEnd(event)">
+      <span class="card-tag tag-${card.tag}">${tagLabels[card.tag] || card.tag}</span>
+      <div class="card-title">${card.title}</div>
+      <div class="card-desc">${card.desc}</div>
+      <div class="card-footer">
+        <span class="card-assignee">${card.assignee}</span>
+        ${card.link ? `<span class="card-link"><a href="${card.link}" target="_blank">${card.linkText} ↗</a></span>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderSkills() {
+  document.getElementById('skillsGrid').innerHTML = skillsData.map(s => `
+    <div class="skill-card">
+      <h3>${s.icon} ${s.name}</h3>
+      <p>${s.desc}</p>
+    </div>
+  `).join('');
+}
+
+function renderCrons() {
+  document.getElementById('cronsGrid').innerHTML = cronsData.map(c => `
+    <div class="cron-card">
+      <span class="cron-time">${c.time} · ${c.freq}</span>
+      <h3>${c.name}</h3>
+      <p>${c.desc}</p>
+    </div>
+  `).join('');
+}
+
+function renderIdeas() {
+  document.getElementById('ideasGrid').innerHTML = ideasData.map(i => `
+    <div class="idea-card">
+      <h3>${i.title}</h3>
+      <p>${i.desc}</p>
+    </div>
+  `).join('');
+}
+
+// === TABS ===
+function switchTab(tabId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+// === FILTERS ===
+function filterCards(tag, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  document.querySelectorAll('.card').forEach(card => {
+    if (tag === 'all' || card.dataset.tag === tag) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+// === DRAG & DROP ===
+let draggedCard = null;
+
+function dragStart(e) {
+  draggedCard = e.target;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+
+function dragEnd(e) {
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.column-body').forEach(b => b.classList.remove('drag-over'));
+}
+
+function dragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('drag-over');
+}
+
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function drop(e) {
+  e.preventDefault();
+  const col = e.currentTarget;
+  col.classList.remove('drag-over');
+
+  if (draggedCard) {
+    col.appendChild(draggedCard);
+    const cardId = parseInt(draggedCard.dataset.id);
+    const newCol = col.dataset.col;
+    const card = boardData.cards.find(c => c.id === cardId);
+    if (card) card.col = newCol;
+
+    // Update counts
+    document.querySelectorAll('.column').forEach(colEl => {
+      const body = colEl.querySelector('.column-body');
+      const count = body.querySelectorAll('.card').length;
+      colEl.querySelector('.count').textContent = count;
+    });
+  }
+}
+</script>
+</body>
+</html>
